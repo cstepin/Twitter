@@ -39,6 +39,7 @@ public class TimelineActivity extends AppCompatActivity {
     List<Tweet> tweets;
     TweetsAdapter adapter;
     Button bLogout;
+    SwipeRefreshLayout swipeContainer;
 
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
@@ -90,8 +91,6 @@ public class TimelineActivity extends AppCompatActivity {
     }
     */
 
-    private SwipeRefreshLayout swipeContainer;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,11 +116,31 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     public void fetchTimelineAsync(int page) {
-        return;
         // Send the network request to fetch the updated data
         // `client` here is an instance of Android Async HTTP
         // getHomeTimeline is an example endpoint.
-       /* client.getHomeTimeline(new JsonHttpResponseHandler() {
+        client.getHomeTimeline(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                // Remember to CLEAR OUT old items before appending in the new ones
+                adapter.clear();
+                // ...the data has come back, add new items to your adapter...
+               // JSONArray jsonArray = json.jsonObject.getJSONArray("");
+                JSONArray jsonArray = json.jsonArray;
+                try {
+                    adapter.addAll(Tweet.fromJsonArray(jsonArray));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                // Now we call setRefreshing(false) to signal refresh has finished
+                swipeContainer.setRefreshing(false);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e("DEBUG", "Fetch timeline error: " + response, throwable);
+            }
+/*
             public void onSuccess(JSONArray json) throws JSONException {
                 // Remember to CLEAR OUT old items before appending in the new ones
                 adapter.clear();
@@ -135,8 +154,9 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(Throwable e) {
                 Log.d("DEBUG", "Fetch timeline error: " + e.toString());
             }
+
+ */
         });
-        */
     }
 
     public void onClickBtn(View v)
