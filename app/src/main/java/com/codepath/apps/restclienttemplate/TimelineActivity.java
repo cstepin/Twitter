@@ -95,7 +95,15 @@ public class TimelineActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Only ever call `setContentView` once right at the top
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_timeline);
+
+        bLogout = (Button) findViewById(R.id.bLogout);
+        bLogout.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                onLogoutButton();
+            }
+        });
+
         // Lookup the swipe container view
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         // Setup refresh listener which triggers new data loading
@@ -108,11 +116,25 @@ public class TimelineActivity extends AppCompatActivity {
                 fetchTimelineAsync(0);
             }
         });
+
         // Configure the refreshing colors
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+
+        client = TwitterApp.getRestClient(this);
+
+        // Find recycler view
+        rvTweets = findViewById(R.id.rvTweets);
+        // Init list of tweets / adapter
+        tweets = new ArrayList<>();
+        adapter = new TweetsAdapter(this, tweets);
+        // Recycler view setup: layout manager and adapter
+        rvTweets.setLayoutManager(new LinearLayoutManager(this));
+        rvTweets.setAdapter(adapter);
+
+        populateHomeTimeline();
     }
 
     public void fetchTimelineAsync(int page) {
@@ -161,6 +183,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     public void onClickBtn(View v)
     {
+        Log.i("in logout button", "successfully in function");
         onLogoutButton();
     }
 
@@ -224,9 +247,8 @@ public class TimelineActivity extends AppCompatActivity {
 
     void onLogoutButton() {
         // forget who's logged in
-
+        Log.i("in logout button", "successfully in function");
         TwitterApp.getRestClient(this).clearAccessToken();
-
         // navigate backwards to Login screen
         Intent i = new Intent(this, LoginActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // this makes sure the Back button won't work

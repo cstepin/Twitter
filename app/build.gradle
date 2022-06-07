@@ -4,6 +4,13 @@ def apikeyPropertiesFile = rootProject.file("apikey.properties")
 def apikeyProperties = new Properties()
 apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 
+allprojects {
+    repositories {
+        // requires Gradle v4.1+
+        google()
+    }
+}
+
 android {
     compileSdkVersion 30
 
@@ -59,5 +66,7 @@ dependencies {
 
     implementation 'org.parceler:parceler-api:1.1.12'
     annotationProcessor 'org.parceler:parceler:1.1.12'
+
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 }
 //2.4.0-alpha03
