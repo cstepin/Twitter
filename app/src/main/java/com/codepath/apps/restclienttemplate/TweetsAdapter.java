@@ -1,6 +1,7 @@
 package com.codepath.apps.restclienttemplate;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,10 +58,12 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         ImageView ivProfileImage;
         TextView tvBody;
         TextView tvScreenName;
+        ImageView ivTweetPic;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
+            ivTweetPic = itemView.findViewById(R.id.ivTweetPic);
             tvBody = itemView.findViewById(R.id.tvBody);
             tvScreenName = itemView.findViewById(R.id.tvScreenName);
 
@@ -70,6 +73,14 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvBody.setText(tweet.body);
             tvScreenName.setText(tweet.user.screenName);
             Glide.with(context).load(tweet.user.publicImageUrl).into(ivProfileImage);
+            if(tweet.displayUrl != "") {
+                ivTweetPic.setVisibility(View.VISIBLE);
+                Log.i("got into entities!", "inside");
+                Glide.with(context).load(tweet.displayUrl).into(ivTweetPic);
+            }
+            else{
+                ivTweetPic.setVisibility(View.INVISIBLE);
+            }
         }
     }
 

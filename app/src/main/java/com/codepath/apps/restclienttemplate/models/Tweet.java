@@ -1,5 +1,7 @@
 package com.codepath.apps.restclienttemplate.models;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,13 +16,36 @@ public class Tweet {
     public String body;
     public String createdAt;
     public User user;
+    public String displayUrl;
+    public Entities entities;
 
     // Needed by Parceler Library
     public Tweet() {}
 
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
-        tweet.body = jsonObject.getString("text");
+        if(jsonObject.has("full_text")) {
+            tweet.body = jsonObject.getString("full_text");
+        } else {
+            tweet.body = jsonObject.getString("text");
+        }
+       // tweet.body = jsonObject.getString("text");
+        if(jsonObject.has("extended_entities")){
+            Log.i("entities", "found entities " + jsonObject.toString());
+
+            JSONObject jsonObject1 = jsonObject.getJSONObject("extended_entities");
+            Log.i("entities", "2 " + jsonObject1.toString());
+            JSONArray jsonArray1 = jsonObject1.getJSONArray("media");
+            Log.i("entities", "3 " + jsonArray1.toString());
+            JSONObject media = jsonArray1.getJSONObject(0);
+            tweet.displayUrl = String.format("%s:large", media.getString("media_url_https"));
+
+         //   tweet.entities = Entities.fromJson(jsonObject.getJSONObject("entities"));
+        }
+        else{
+            tweet.displayUrl = "";
+        }
+
         tweet.createdAt = jsonObject.getString("created_at");
 
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
