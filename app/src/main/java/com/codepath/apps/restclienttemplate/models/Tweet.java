@@ -18,6 +18,7 @@ public class Tweet {
     public User user;
     public String displayUrl;
     public Entities entities;
+    public Integer id;
 
     // Needed by Parceler Library
     public Tweet() {}
@@ -50,15 +51,17 @@ public class Tweet {
 
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
 
+        tweet.id = jsonObject.getInt("id");
         return tweet;
     }
 
     public static List<Tweet> fromJsonArray(JSONArray jsonArray) throws JSONException{
         List<Tweet> tweets = new ArrayList<>();
         for(int i = 0; i < jsonArray.length(); i++){
-            tweets.add(fromJson(jsonArray.getJSONObject(i)));
+            Tweet newTweet = fromJson(jsonArray.getJSONObject(i));
+            Log.i("tweetId", "tweetID is: " + newTweet.id);
+            tweets.add(newTweet);
         }
-
         return tweets;
     }
 }

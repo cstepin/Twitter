@@ -43,6 +43,10 @@ public class TimelineActivity extends AppCompatActivity {
     TweetsAdapter adapter;
     Button bLogout;
     SwipeRefreshLayout swipeContainer;
+    static int maxID = 0;
+
+    // For the endless scroll feature
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
@@ -57,42 +61,15 @@ public class TimelineActivity extends AppCompatActivity {
     public static List<Tweet> fromJsonArray(JSONArray jsonArray) throws JSONException{
         List<Tweet> tweets = new ArrayList<>();
         for(int i = 0; i < jsonArray.length(); i++){
-            tweets.add(fromJson(jsonArray.getJSONObject(i)));
+            Tweet newTweet = fromJson(jsonArray.getJSONObject(i));
+            if(newTweet.id > maxID){
+                maxID = newTweet.id;
+            }
+            tweets.add(newTweet);
         }
-
+        Log.i("fromJsonArray", "maxID is: "+ maxID);
         return tweets;
     }
-
-/*
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_timeline);
-
-        client = TwitterApp.getRestClient(this);
-
-        // Find recycler view
-        rvTweets = findViewById(R.id.rvTweets);
-        // Init list of tweets / adapter
-        tweets = new ArrayList<>();
-        adapter = new TweetsAdapter(this, tweets);
-        // Recycler view setup: layout manager and adapter
-        rvTweets.setLayoutManager(new LinearLayoutManager(this));
-        rvTweets.setAdapter(adapter);
-
-        /*
-        bLogout = (Button) findViewById(R.id.bLogout);
-        bLogout.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-            }
-        });
-         */
-    /*
-
-        populateHomeTimeline();
-    }
-    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,10 +111,50 @@ public class TimelineActivity extends AppCompatActivity {
         tweets = new ArrayList<>();
         adapter = new TweetsAdapter(this, tweets);
         // Recycler view setup: layout manager and adapter
-        rvTweets.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvTweets.setLayoutManager(linearLayoutManager);
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+
+                loadNextDataFromApi(page);
+                scrollListener.resetState();
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        rvTweets.addOnScrollListener(scrollListener);
         rvTweets.setAdapter(adapter);
 
         populateHomeTimeline();
+    }
+
+    // Append the next page of data into the adapter
+    // This method probably sends out a network request and appends new data items to your adapter.
+    public void loadNextDataFromApi(int page) {
+        client.getHomeTimeline(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                JSONArray jsonArray = json.jsonArray;
+                int ogIndex = tweets.size();
+                try {
+                    tweets.addAll(Tweet.fromJsonArray(jsonArray));
+                    adapter.notifyItemRangeInserted(ogIndex, jsonArray.length());
+            } catch (JSONException e) {
+                Log.e(TAG, "Caught json exception", e);
+                e.printStackTrace();
+            }
+            }
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e("loadNextDatafromApi", "failure " + response, throwable);
+            }
+        }, maxID);
+        // Send an API request to retrieve appropriate paginated data
+        //  --> Send the request including an offset value (i.e `page`) as a query parameter.
+        //  --> Deserialize and construct new model objects from the API response
+        //  --> Append the new data objects to the existing set of items inside the array of items
+        //  --> Notify the adapter of the new items made with `notifyItemRangeInserted()`
     }
 
     public void fetchTimelineAsync(int page) {
@@ -165,23 +182,7 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e("DEBUG", "Fetch timeline error: " + response, throwable);
             }
-/*
-            public void onSuccess(JSONArray json) throws JSONException {
-                // Remember to CLEAR OUT old items before appending in the new ones
-                adapter.clear();
-                // ...the data has come back, add new items to your adapter...
-
-                adapter.addAll(fromJsonArray(json));
-                // Now we call setRefreshing(false) to signal refresh has finished
-                swipeContainer.setRefreshing(false);
-            }
-
-            public void onFailure(Throwable e) {
-                Log.d("DEBUG", "Fetch timeline error: " + e.toString());
-            }
-
- */
-        });
+        }, maxID);
     }
 
     public void onClickBtn(View v)
@@ -233,7 +234,6 @@ public class TimelineActivity extends AppCompatActivity {
                 try {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     adapter.notifyDataSetChanged();
-
                 } catch (JSONException e) {
                     Log.e(TAG, "Caught json exception", e);
                     e.printStackTrace();
@@ -245,7 +245,7 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e(TAG, "onFailure " + response, throwable);
             }
-        });
+        }, 2069106689);
     }
 
     void onLogoutButton() {
