@@ -15,6 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.codepath.apps.restclienttemplate.databinding.ActivityComposeBinding;
+import com.codepath.apps.restclienttemplate.databinding.ActivityLoginBinding;
+import com.codepath.apps.restclienttemplate.databinding.ActivityTimelineBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
@@ -33,7 +36,7 @@ import java.util.Locale;
 import okhttp3.Headers;
 
 public class TimelineActivity extends AppCompatActivity {
-
+    private ActivityTimelineBinding binding;
     public static final String TAG = "TimelineActivity";
     private final int REQUEST_CODE = 20;
 
@@ -75,9 +78,11 @@ public class TimelineActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Only ever call `setContentView` once right at the top
-        setContentView(R.layout.activity_timeline);
+        binding = ActivityTimelineBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-        bLogout = (Button) findViewById(R.id.bLogout);
+        bLogout = binding.bLogout;
         bLogout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 onLogoutButton();
@@ -85,7 +90,7 @@ public class TimelineActivity extends AppCompatActivity {
         });
 
         // Lookup the swipe container view
-        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer = binding.swipeContainer;
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -106,7 +111,7 @@ public class TimelineActivity extends AppCompatActivity {
         client = TwitterApp.getRestClient(this);
 
         // Find recycler view
-        rvTweets = findViewById(R.id.rvTweets);
+        rvTweets = binding.rvTweets;
         // Init list of tweets / adapter
         tweets = new ArrayList<>();
         adapter = new TweetsAdapter(this, tweets);
@@ -117,7 +122,7 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Triggered only when new data needs to be appended to the list
-
+                Log.i("in load more", "in load more");
                 loadNextDataFromApi(page);
                 scrollListener.resetState();
             }
@@ -140,7 +145,7 @@ public class TimelineActivity extends AppCompatActivity {
                 try {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     findNewMax(tweets);
-                    Log.i("new max", "new max is: " + maxID);
+                    Log.i("new maxasdfasdf", "new max is: " + maxID);
                     adapter.notifyItemRangeInserted(ogIndex, jsonArray.length());
             } catch (JSONException e) {
                 Log.e(TAG, "Caught json exception", e);
@@ -232,6 +237,7 @@ public class TimelineActivity extends AppCompatActivity {
         long ans = 0;
         for(int i = 0; i < tweets.size(); i++){
             if(tweets.get(i).id < maxID){
+                Log.i("new max found", "new max found" + tweets.get(i).id);
                 maxID = tweets.get(i).id;
             }
         }

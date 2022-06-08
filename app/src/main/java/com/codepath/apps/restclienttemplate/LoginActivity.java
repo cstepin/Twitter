@@ -21,7 +21,6 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 		super.onCreate(savedInstanceState);
 		binding = ActivityLoginBinding.inflate(getLayoutInflater());
 		View view = binding.getRoot();
-		//view
 		setContentView(view);
 
 		final SampleModel sampleModel = new SampleModel();
