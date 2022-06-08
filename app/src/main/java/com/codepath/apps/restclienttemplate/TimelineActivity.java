@@ -43,7 +43,7 @@ public class TimelineActivity extends AppCompatActivity {
     TweetsAdapter adapter;
     Button bLogout;
     SwipeRefreshLayout swipeContainer;
-    static int maxID = 0;
+    static long maxID = 1534592605845078018L;
 
     // For the endless scroll feature
     private EndlessRecyclerViewScrollListener scrollListener;
@@ -62,7 +62,7 @@ public class TimelineActivity extends AppCompatActivity {
         List<Tweet> tweets = new ArrayList<>();
         for(int i = 0; i < jsonArray.length(); i++){
             Tweet newTweet = fromJson(jsonArray.getJSONObject(i));
-            if(newTweet.id > maxID){
+            if(newTweet.id < maxID){
                 maxID = newTweet.id;
             }
             tweets.add(newTweet);
@@ -139,6 +139,8 @@ public class TimelineActivity extends AppCompatActivity {
                 int ogIndex = tweets.size();
                 try {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
+                    findNewMax(tweets);
+                    Log.i("new max", "new max is: " + maxID);
                     adapter.notifyItemRangeInserted(ogIndex, jsonArray.length());
             } catch (JSONException e) {
                 Log.e(TAG, "Caught json exception", e);
@@ -171,6 +173,7 @@ public class TimelineActivity extends AppCompatActivity {
                 JSONArray jsonArray = json.jsonArray;
                 try {
                     adapter.addAll(Tweet.fromJsonArray(jsonArray));
+                    findNewMax(tweets);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -225,6 +228,15 @@ public class TimelineActivity extends AppCompatActivity {
      //   return super.onCreateOptionsMenu(menu);
     }
 
+    public void findNewMax(List<Tweet> tweets) {
+        long ans = 0;
+        for(int i = 0; i < tweets.size(); i++){
+            if(tweets.get(i).id < maxID){
+                maxID = tweets.get(i).id;
+            }
+        }
+    }
+
     private void populateHomeTimeline() {
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
@@ -233,19 +245,19 @@ public class TimelineActivity extends AppCompatActivity {
                 JSONArray jsonArray = json.jsonArray;
                 try {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
+                    findNewMax(tweets);
                     adapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     Log.e(TAG, "Caught json exception", e);
                     e.printStackTrace();
                 }
-
             }
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e(TAG, "onFailure " + response, throwable);
             }
-        }, 2069106689);
+        }, maxID);
     }
 
     void onLogoutButton() {

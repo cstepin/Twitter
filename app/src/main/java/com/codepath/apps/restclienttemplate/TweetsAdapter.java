@@ -77,13 +77,13 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvBody.setText(tweet.body);
             tvScreenName.setText(tweet.user.screenName);
             Glide.with(context).load(tweet.user.publicImageUrl).into(ivProfileImage);
-            if(tweet.displayUrl != "") {
+            if(!(tweet.displayUrl.equals(""))) {
                 ivTweetPic.setVisibility(View.VISIBLE);
                 Log.i("got into entities!", "inside");
                 Glide.with(context).load(tweet.displayUrl).into(ivTweetPic);
             }
             else{
-                ivTweetPic.setVisibility(View.INVISIBLE);
+                ivTweetPic.setVisibility(View.GONE);
             }
             tvTimeAgo.setText(getRelativeTimeAgo(tweet.createdAt));
         }
