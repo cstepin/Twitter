@@ -109,12 +109,14 @@ public class TimelineActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        bLogout = binding.bLogout;
-        bLogout.setOnClickListener(new View.OnClickListener() {
+    //    bLogout = binding.bLogout;
+    /*    bLogout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 onLogoutButton();
             }
         });
+
+     */
 
         // Lookup the swipe container view
         swipeContainer = binding.swipeContainer;
@@ -151,7 +153,7 @@ public class TimelineActivity extends AppCompatActivity {
                 // Triggered only when new data needs to be appended to the list
                 Log.i("in load more", "in load more");
                 loadNextDataFromApi(page);
-                scrollListener.resetState();
+              //  scrollListener.resetState();
             }
         };
         // Adds the scroll listener to RecyclerView
@@ -164,7 +166,7 @@ public class TimelineActivity extends AppCompatActivity {
     // Append the next page of data into the adapter
     // This method probably sends out a network request and appends new data items to your adapter.
     public void loadNextDataFromApi(int page) {
-        client.getHomeTimeline(new JsonHttpResponseHandler() {
+        client.getHomeTimeline2(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 JSONArray jsonArray = json.jsonArray;
@@ -183,7 +185,7 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e("loadNextDatafromApi", "failure " + response, throwable);
             }
-        }, maxID - 1);
+        }, tweets.get(tweets.size() - 1).id);
         Log.i("max info loadDatafrom2", "new max is: " + maxID);
         // Send an API request to retrieve appropriate paginated data
         //  --> Send the request including an offset value (i.e `page`) as a query parameter.
@@ -236,6 +238,10 @@ public class TimelineActivity extends AppCompatActivity {
             startActivityForResult(intent, REQUEST_CODE);
             return true;
         }
+        else if(item.getItemId() == R.id.miLogout) {
+            onLogoutButton();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -252,6 +258,8 @@ public class TimelineActivity extends AppCompatActivity {
 
             rvTweets.smoothScrollToPosition(0);
         }
+
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
