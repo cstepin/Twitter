@@ -79,7 +79,6 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             Glide.with(context).load(tweet.user.publicImageUrl).into(ivProfileImage);
             if(!(tweet.displayUrl.equals(""))) {
                 ivTweetPic.setVisibility(View.VISIBLE);
-                Log.i("got into entities!", "inside");
                 Glide.with(context).load(tweet.displayUrl).into(ivTweetPic);
             }
             else{

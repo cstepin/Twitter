@@ -46,6 +46,12 @@ public class TimelineActivity extends AppCompatActivity {
     TweetsAdapter adapter;
     Button bLogout;
     SwipeRefreshLayout swipeContainer;
+    /* This is the newest Tweet, meaning it has the highest maxID
+    -- since other tweets will automatically have a lower tweet ID,
+    we know that the correct maxID (the lowest current tweet ID) will be
+    passed in for the tweet dependencies
+     */
+
     static long maxID = 1534592605845078018L;
 
     // For the endless scroll feature
@@ -166,7 +172,7 @@ public class TimelineActivity extends AppCompatActivity {
                 try {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     findNewMax(tweets);
-                    Log.i("new maxasdfasdf", "new max is: " + maxID);
+                    Log.i("max info loadDatafrom", "new max is: " + maxID);
                     adapter.notifyItemRangeInserted(ogIndex, jsonArray.length());
             } catch (JSONException e) {
                 Log.e(TAG, "Caught json exception", e);
@@ -177,7 +183,8 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e("loadNextDatafromApi", "failure " + response, throwable);
             }
-        }, maxID);
+        }, maxID - 1);
+        Log.i("max info loadDatafrom2", "new max is: " + maxID);
         // Send an API request to retrieve appropriate paginated data
         //  --> Send the request including an offset value (i.e `page`) as a query parameter.
         //  --> Deserialize and construct new model objects from the API response
@@ -211,7 +218,8 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e("DEBUG", "Fetch timeline error: " + response, throwable);
             }
-        }, maxID);
+            // Standard maxID to ensure that we have most recent posts
+        }, 1534592605845078018L);
     }
 
     public void onClickBtn(View v)
@@ -274,6 +282,7 @@ public class TimelineActivity extends AppCompatActivity {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     findNewMax(tweets);
                     adapter.notifyDataSetChanged();
+                    Log.i("max info", "max is now: " + maxID);
                 } catch (JSONException e) {
                     Log.e(TAG, "Caught json exception", e);
                     e.printStackTrace();
@@ -285,6 +294,7 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.e(TAG, "onFailure " + response, throwable);
             }
         }, maxID);
+        Log.i("max info 2", "max is now: " + maxID);
     }
 
     void onLogoutButton() {

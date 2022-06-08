@@ -17,7 +17,6 @@ public class Tweet {
     public String createdAt;
     public User user;
     public String displayUrl;
-    public Entities entities;
     public Long id;
 
     // Needed by Parceler Library
@@ -32,12 +31,12 @@ public class Tweet {
         }
        // tweet.body = jsonObject.getString("text");
         if(jsonObject.has("extended_entities")){
-            Log.i("entities", "found entities " + jsonObject);
+           // Log.i("entities", "found entities " + jsonObject);
 
             JSONObject jsonObject1 = jsonObject.getJSONObject("extended_entities");
-            Log.i("entities", "2 " + jsonObject1);
+         //   Log.i("entities", "2 " + jsonObject1);
             JSONArray jsonArray1 = jsonObject1.getJSONArray("media");
-            Log.i("entities", "3 " + jsonArray1);
+         //   Log.i("entities", "3 " + jsonArray1);
             JSONObject media = jsonArray1.getJSONObject(0);
             tweet.displayUrl = String.format("%s:large", media.getString("media_url_https"));
 
