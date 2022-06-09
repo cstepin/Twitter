@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.databinding.ActivityComposeBinding;
 import com.codepath.apps.restclienttemplate.databinding.ActivityLoginBinding;
@@ -46,6 +47,12 @@ public class TimelineActivity extends AppCompatActivity {
     TweetsAdapter adapter;
     Button bLogout;
     SwipeRefreshLayout swipeContainer;
+    /* This is the newest Tweet, meaning it has the highest maxID
+    -- since other tweets will automatically have a lower tweet ID,
+    we know that the correct maxID (the lowest current tweet ID) will be
+    passed in for the tweet dependencies
+     */
+
     static long maxID = 1534592605845078018L;
 
     // For the endless scroll feature
@@ -103,12 +110,14 @@ public class TimelineActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        bLogout = binding.bLogout;
-        bLogout.setOnClickListener(new View.OnClickListener() {
+    //    bLogout = binding.bLogout;
+    /*    bLogout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 onLogoutButton();
             }
         });
+
+     */
 
         // Lookup the swipe container view
         swipeContainer = binding.swipeContainer;
@@ -145,7 +154,7 @@ public class TimelineActivity extends AppCompatActivity {
                 // Triggered only when new data needs to be appended to the list
                 Log.i("in load more", "in load more");
                 loadNextDataFromApi(page);
-                scrollListener.resetState();
+              //  scrollListener.resetState();
             }
         };
         // Adds the scroll listener to RecyclerView
@@ -158,7 +167,7 @@ public class TimelineActivity extends AppCompatActivity {
     // Append the next page of data into the adapter
     // This method probably sends out a network request and appends new data items to your adapter.
     public void loadNextDataFromApi(int page) {
-        client.getHomeTimeline(new JsonHttpResponseHandler() {
+        client.getHomeTimeline2(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 JSONArray jsonArray = json.jsonArray;
@@ -166,7 +175,7 @@ public class TimelineActivity extends AppCompatActivity {
                 try {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     findNewMax(tweets);
-                    Log.i("new maxasdfasdf", "new max is: " + maxID);
+                    Log.i("max info loadDatafrom", "new max is: " + maxID);
                     adapter.notifyItemRangeInserted(ogIndex, jsonArray.length());
             } catch (JSONException e) {
                 Log.e(TAG, "Caught json exception", e);
@@ -177,7 +186,8 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e("loadNextDatafromApi", "failure " + response, throwable);
             }
-        }, maxID);
+        }, tweets.get(tweets.size() - 1).id);
+        Log.i("max info loadDatafrom2", "new max is: " + maxID);
         // Send an API request to retrieve appropriate paginated data
         //  --> Send the request including an offset value (i.e `page`) as a query parameter.
         //  --> Deserialize and construct new model objects from the API response
@@ -211,7 +221,8 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e("DEBUG", "Fetch timeline error: " + response, throwable);
             }
-        }, maxID);
+            // Standard maxID to ensure that we have most recent posts
+        }, 1534592605845078018L);
     }
 
     public void onClickBtn(View v)
@@ -228,6 +239,10 @@ public class TimelineActivity extends AppCompatActivity {
             startActivityForResult(intent, REQUEST_CODE);
             return true;
         }
+        else if(item.getItemId() == R.id.miLogout) {
+            onLogoutButton();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -244,6 +259,8 @@ public class TimelineActivity extends AppCompatActivity {
 
             rvTweets.smoothScrollToPosition(0);
         }
+
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -274,6 +291,7 @@ public class TimelineActivity extends AppCompatActivity {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     findNewMax(tweets);
                     adapter.notifyDataSetChanged();
+                    Log.i("max info", "max is now: " + maxID);
                 } catch (JSONException e) {
                     Log.e(TAG, "Caught json exception", e);
                     e.printStackTrace();
@@ -285,6 +303,7 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.e(TAG, "onFailure " + response, throwable);
             }
         }, maxID);
+        Log.i("max info 2", "max is now: " + maxID);
     }
 
     void onLogoutButton() {

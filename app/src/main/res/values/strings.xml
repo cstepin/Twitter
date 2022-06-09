@@ -10,5 +10,8 @@
     <string name="logout">Logout</string>
     <string name="compose">Compose</string>
     <string name="loading">Loading…</string>
+    <string name="used_for_liking">Used for liking</string>
+    <string name="used_for_replying">Used for replying</string>
+    <string name="used_for_retweeting">Used for retweeting</string>
 
 </resources>
