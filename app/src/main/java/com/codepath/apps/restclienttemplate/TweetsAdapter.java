@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -84,6 +85,9 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             ibReply = itemView.findViewById(R.id.ibReply);
 
             itemView.setOnClickListener(this);
+
+          //  ibReply.setOnClickListener((View.OnClickListener) context);
+
         }
 
         public void bind(Tweet tweet) {
@@ -98,6 +102,17 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 ivTweetPic.setVisibility(View.GONE);
             }
             tvTimeAgo.setText(getRelativeTimeAgo(tweet.createdAt));
+
+            ibReply.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, ComposeActivity.class);
+                    // serialize the movie using parceler, use its short name as a key
+                    intent.putExtra(Tweet.class.getSimpleName(), tweet.user.screenName);
+                    // show the activity
+                    context.startActivity(intent);
+                }
+            });
         }
 
         private static final int SECOND_MILLIS = 1000;
@@ -167,4 +182,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         tweets.addAll(list);
         notifyDataSetChanged();
     }
+
+
+
 }

@@ -43,6 +43,10 @@ public class ComposeActivity extends AppCompatActivity {
 
         client = TwitterApp.getRestClient(this);
 
+        if(getIntent().hasExtra(Tweet.class.getSimpleName())){
+            etCompose.setText("@" + getIntent().getStringExtra(Tweet.class.getSimpleName()));
+        }
+
         //Set click listener
         btnTweet.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,7 +61,7 @@ public class ComposeActivity extends AppCompatActivity {
                     Toast.makeText(ComposeActivity.this, "Text cannot be greater than 140 characters", Toast.LENGTH_LONG).show();
                     return;
                 }
-                Toast.makeText(ComposeActivity.this, tweetContent, Toast.LENGTH_LONG).show();
+              //  Toast.makeText(ComposeActivity.this, tweetContent, Toast.LENGTH_LONG).show();
                // return;
                 client.publishTweet(tweetContent, new JsonHttpResponseHandler() {
                     @Override
