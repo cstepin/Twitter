@@ -48,7 +48,7 @@ Adding horizontal layout view for detail activity.
 
 Here's a walkthrough of implemented user stories:
 
-<img src='https://drive.google.com/file/d/13bzJeIQGkAGbUFFvV4d25mDLnKFi9n-H/view' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://submissions.us-east-1.linodeobjects.com/metau_android/72UsT4gA.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [Kap](https://getkap.co/).
 
