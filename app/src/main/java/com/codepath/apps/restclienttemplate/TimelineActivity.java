@@ -3,6 +3,7 @@ package com.codepath.apps.restclienttemplate;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -144,7 +145,14 @@ public class TimelineActivity extends AppCompatActivity {
         rvTweets = binding.rvTweets;
         // Init list of tweets / adapter
         tweets = new ArrayList<>();
-        adapter = new TweetsAdapter(this, tweets);
+        TweetsAdapter.clickReply cR = new TweetsAdapter.clickReply() {
+            @Override
+            public void onClickReplyReaction(Tweet tweet) {
+                showComposeDialog("@" + tweet.user.screenName);
+            }
+        };
+
+        adapter = new TweetsAdapter(this, tweets, cR);
         // Recycler view setup: layout manager and adapter
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvTweets.setLayoutManager(linearLayoutManager);
@@ -234,16 +242,19 @@ public class TimelineActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.compose){
-            //Compose icon is tapped, so navigate to compose activity
-            Intent intent = new Intent(this, ComposeActivity.class);
-            startActivityForResult(intent, REQUEST_CODE);
-            return true;
+            showComposeDialog("");
         }
         else if(item.getItemId() == R.id.miLogout) {
             onLogoutButton();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showComposeDialog(String userName) {
+        FragmentManager fm = getSupportFragmentManager();
+        ComposeFragment editNameDialogFragment = ComposeFragment.newInstance(userName);
+        editNameDialogFragment.show(fm, "hello");
     }
 
     @Override

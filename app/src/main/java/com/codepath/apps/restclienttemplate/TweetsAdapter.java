@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -33,10 +34,17 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
 
     Context context;
     List<Tweet> tweets;
+    private static clickReply cR;
 
     //For each row, need to inflate the layout
 
-    public TweetsAdapter(Context context, List<Tweet> tweets){
+    public interface clickReply
+    {
+        void onClickReplyReaction(Tweet tweet);
+    }
+
+    public TweetsAdapter(Context context, List<Tweet> tweets, clickReply cR){
+        this.cR = cR;
         this.context = context;
         this.tweets = tweets;
     }
@@ -112,11 +120,15 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             ibReply.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, ComposeActivity.class);
+                    /*
+                    Intent intent = new Intent(context, ComposeFragment.class);
                     // serialize the movie using parceler, use its short name as a key
                     intent.putExtra(Tweet.class.getSimpleName(), tweet.user.screenName);
                     // show the activity
                     context.startActivity(intent);
+
+                     */
+                    TweetsAdapter.cR.onClickReplyReaction(tweet);
                 }
             });
         }
